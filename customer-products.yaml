@@ -571,223 +571,6 @@ definitions:
                 Amt: 0
                 CurCode: COP
 paths:
-  /Products/Balance:
-    post:
-      responses:
-        '201':
-          description: Transaction Success
-          schema:
-            $ref: '#/definitions/ResBPostProductsBalance'
-          headers:
-            X-RqUID:
-              type: string
-              description: Identificador único de la invocación.
-            X-ApprovalId:
-              type: string
-              description: Número de autorización de la transacción.
-        '206':
-          description: Transaction Failed
-          schema:
-            $ref: '#/definitions/ResBPostProductsBalanceError'
-          headers:
-            X-RqUID:
-              type: string
-              description: Identificador único de la invocación.
-            X-ApprovalId:
-              type: string
-              description: Número de autorización de la transacción.
-        '400':
-          description: Ha ocurrido un error en la invocación
-          schema:
-            $ref: '#/definitions/ErrorCode'
-        '401':
-          description: no autorizado
-          schema:
-            $ref: '#/definitions/ErrorCode'
-        '405':
-          description: método no permitido
-          schema:
-            $ref: '#/definitions/ErrorCode'
-        '422':
-          description: método no permitido
-          schema:
-            $ref: '#/definitions/ErrorCode'
-        '500':
-          description: error en servidor
-          schema:
-            $ref: '#/definitions/ResBPostProductsBalanceError'
-          headers:
-            X-RqUID:
-              type: string
-              description: Identificador único de la invocación.
-            X-ApprovalId:
-              type: string
-              description: Número de autorización de la transacción.
-      tags:
-        - Products
-      operationId: postProductBalanceCustomer
-      description: Con esta API se permite la consulta de saldos de productos de un cliente
-      parameters:
-        - name: X-RqUID
-          in: header
-          required: true
-          description: Identificador único
-          maxLength: 36
-          minLength: 1
-          type: string
-          x-example: '1001019911231'
-        - name: X-Channel
-          in: header
-          required: true
-          description: Canal origen
-          maxLength: 20
-          minLength: 0
-          type: string
-          x-example: MB
-        - name: X-CompanyId
-          in: header
-          required: true
-          description: Empresa origen de la invocación
-          maxLength: 10
-          minLength: 0
-          type: string
-          x-example: '0052'
-        - name: X-GovIssueIdentType
-          in: header
-          required: true
-          description: Tipo de documento origen
-          type: string
-          enum:
-            - CC
-            - CE
-            - LC
-            - NI
-            - NE
-            - NJ
-            - OT
-            - PA
-            - RC
-            - TI
-          x-example: CC
-        - name: X-IdentSerialNum
-          in: header
-          required: true
-          description: Número de identificación origen
-          type: string
-          maxLength: 20
-          minLength: 0
-          x-example: '80026399'
-        - name: X-IPAddr
-          in: header
-          required: true
-          description: IP origen
-          type: string
-          format: ipv4
-          maxLength: 15
-          minLength: 0
-          x-example: 192.168.206.28
-        - name: X-NextDt
-          in: header
-          required: true
-          description: Fecha de compensación
-          type: string
-          format: date-time
-          x-example: '2015-05-13T00:00:00'
-        - name: X-SessKey
-          in: header
-          required: true
-          description: Sesión
-          type: string
-          maxLength: 1000
-          minLength: 0
-          x-example: Mwc2Zngc1fXkdMqnJ5z1LRwBktXz0kFRsm6v028RRPp9tVRhrtG5!-1597859265!1500405852732
-        - name: X-Language
-          in: header
-          required: true
-          description: 'especifica lenguaje usado, sigue el estándar ISO 639 mas un guion mas el código de país según la norma ISO 3166'
-          type: string
-          maxLength: 5
-          minLength: 5
-          x-example: es_CO
-        - name: X-Version
-          in: header
-          required: false
-          description: Versión de la aplicación
-          type: string
-          maxLength: 20
-          minLength: 0
-          x-example: 8.54.1
-        - name: X-FirstName
-          in: header
-          required: false
-          description: Nombre de usuario en sesion
-          type: string
-          maxLength: 100
-          minLength: 0
-          x-example: Jeisson
-        - name: X-LastName
-          in: header
-          required: false
-          description: Apellido de usuario de sesión
-          type: string
-          maxLength: 100
-          minLength: 0
-          x-example: Cordoba
-        - name: X-KeyAcctId
-          in: header
-          required: false
-          description: Llave de identificación de cuenta
-          type: string
-          maxLength: 15
-          minLength: 0
-          x-example: '888888888'
-        - name: X-CustLoginId
-          in: header
-          required: false
-          description: Usuario en sesión
-          type: string
-          maxLength: 50
-          minLength: 0
-          x-example: ADMJAFERNANDOA
-        - name: X-CustIdentType
-          in: header
-          required: false
-          description: Numero de identificación de una compañía
-          type: string
-          maxLength: 3
-          minLength: 0
-          x-example: CC
-        - name: X-CustIdentNum
-          in: header
-          required: false
-          description: Numero de identificación de una compañía
-          type: string
-          maxLength: 25
-          minLength: 0
-          x-example: '80367499'
-        - name: X-LegalName
-          in: header
-          required: false
-          description: Nombre de la empresa
-          type: string
-          maxLength: 100
-          minLength: 0
-          x-example: Cordoba
-        - name: X-Name
-          in: header
-          required: false
-          type: string
-          maxLength: 50
-          minLength: 0
-          description: Nombre de la aplicacion que consume la API
-          x-example: ICBS
-        - name: ReqBPostProductsBalance
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/ReqBPostProductsBalance'
-      consumes: []
-      produces: []
   /Products:
     get:
       responses:
@@ -1029,6 +812,223 @@ paths:
           type: string
           maxLength: 25
           minLength: 0
+      consumes: []
+      produces: []
+  /Products/Balance:
+    post:
+      responses:
+        '201':
+          description: Transaction Success
+          schema:
+            $ref: '#/definitions/ResBPostProductsBalance'
+          headers:
+            X-RqUID:
+              type: string
+              description: Identificador único de la invocación.
+            X-ApprovalId:
+              type: string
+              description: Número de autorización de la transacción.
+        '206':
+          description: Transaction Failed
+          schema:
+            $ref: '#/definitions/ResBPostProductsBalanceError'
+          headers:
+            X-RqUID:
+              type: string
+              description: Identificador único de la invocación.
+            X-ApprovalId:
+              type: string
+              description: Número de autorización de la transacción.
+        '400':
+          description: Ha ocurrido un error en la invocación
+          schema:
+            $ref: '#/definitions/ErrorCode'
+        '401':
+          description: no autorizado
+          schema:
+            $ref: '#/definitions/ErrorCode'
+        '405':
+          description: método no permitido
+          schema:
+            $ref: '#/definitions/ErrorCode'
+        '422':
+          description: método no permitido
+          schema:
+            $ref: '#/definitions/ErrorCode'
+        '500':
+          description: error en servidor
+          schema:
+            $ref: '#/definitions/ResBPostProductsBalanceError'
+          headers:
+            X-RqUID:
+              type: string
+              description: Identificador único de la invocación.
+            X-ApprovalId:
+              type: string
+              description: Número de autorización de la transacción.
+      tags:
+        - Products
+      operationId: postProductBalanceCustomer
+      description: Con esta API se permite la consulta de saldos de productos de un cliente
+      parameters:
+        - name: X-RqUID
+          in: header
+          required: true
+          description: Identificador único
+          maxLength: 36
+          minLength: 1
+          type: string
+          x-example: '1001019911231'
+        - name: X-Channel
+          in: header
+          required: true
+          description: Canal origen
+          maxLength: 20
+          minLength: 0
+          type: string
+          x-example: MB
+        - name: X-CompanyId
+          in: header
+          required: true
+          description: Empresa origen de la invocación
+          maxLength: 10
+          minLength: 0
+          type: string
+          x-example: '0052'
+        - name: X-GovIssueIdentType
+          in: header
+          required: true
+          description: Tipo de documento origen
+          type: string
+          enum:
+            - CC
+            - CE
+            - LC
+            - NI
+            - NE
+            - NJ
+            - OT
+            - PA
+            - RC
+            - TI
+          x-example: CC
+        - name: X-IdentSerialNum
+          in: header
+          required: true
+          description: Número de identificación origen
+          type: string
+          maxLength: 20
+          minLength: 0
+          x-example: '80026399'
+        - name: X-IPAddr
+          in: header
+          required: true
+          description: IP origen
+          type: string
+          format: ipv4
+          maxLength: 15
+          minLength: 0
+          x-example: 192.168.206.28
+        - name: X-NextDt
+          in: header
+          required: true
+          description: Fecha de compensación
+          type: string
+          format: date-time
+          x-example: '2015-05-13T00:00:00'
+        - name: X-SessKey
+          in: header
+          required: true
+          description: Sesión
+          type: string
+          maxLength: 1000
+          minLength: 0
+          x-example: Mwc2Zngc1fXkdMqnJ5z1LRwBktXz0kFRsm6v028RRPp9tVRhrtG5!-1597859265!1500405852732
+        - name: X-Language
+          in: header
+          required: true
+          description: 'especifica lenguaje usado, sigue el estándar ISO 639 mas un guion mas el código de país según la norma ISO 3166'
+          type: string
+          maxLength: 5
+          minLength: 5
+          x-example: es_CO
+        - name: X-Version
+          in: header
+          required: false
+          description: Versión de la aplicación
+          type: string
+          maxLength: 20
+          minLength: 0
+          x-example: 8.54.1
+        - name: X-FirstName
+          in: header
+          required: false
+          description: Nombre de usuario en sesion
+          type: string
+          maxLength: 100
+          minLength: 0
+          x-example: Jeisson
+        - name: X-LastName
+          in: header
+          required: false
+          description: Apellido de usuario de sesión
+          type: string
+          maxLength: 100
+          minLength: 0
+          x-example: Cordoba
+        - name: X-KeyAcctId
+          in: header
+          required: false
+          description: Llave de identificación de cuenta
+          type: string
+          maxLength: 15
+          minLength: 0
+          x-example: '888888888'
+        - name: X-CustLoginId
+          in: header
+          required: false
+          description: Usuario en sesión
+          type: string
+          maxLength: 50
+          minLength: 0
+          x-example: ADMJAFERNANDOA
+        - name: X-CustIdentType
+          in: header
+          required: false
+          description: Numero de identificación de una compañía
+          type: string
+          maxLength: 3
+          minLength: 0
+          x-example: CC
+        - name: X-CustIdentNum
+          in: header
+          required: false
+          description: Numero de identificación de una compañía
+          type: string
+          maxLength: 25
+          minLength: 0
+          x-example: '80367499'
+        - name: X-LegalName
+          in: header
+          required: false
+          description: Nombre de la empresa
+          type: string
+          maxLength: 100
+          minLength: 0
+          x-example: Cordoba
+        - name: X-Name
+          in: header
+          required: false
+          type: string
+          maxLength: 50
+          minLength: 0
+          description: Nombre de la aplicacion que consume la API
+          x-example: ICBS
+        - name: ReqBPostProductsBalance
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ReqBPostProductsBalance'
       consumes: []
       produces: []
   /Products/CreditCard:
