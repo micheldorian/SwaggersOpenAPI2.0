@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   title: Customer_Products
-  version: 3.2.3
+  version: 4.0.0
   description: Api que permite la consulta del resumen y saldos de los productos de clientes de los bancos del grupo aval.
   contact:
     email: michel.vargas@avaldigitallabs.com
