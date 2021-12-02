@@ -1,0 +1,1158 @@
+swagger: '2.0'
+info:
+  title: Customer_Products
+  version: 3.2.3
+  description: Api que permite la consulta del resumen y saldos de los productos de clientes de los bancos del grupo aval.
+  contact:
+    email: michel.vargas@avaldigitallabs.com
+host: stoplight.io
+schemes:
+  - https
+basePath: /customerManagement/v3/Customer_Products
+produces:
+  - application/json
+consumes:
+  - application/json
+security:
+  - Oauth2:
+      - scope1
+    clientIdHeader: []
+securityDefinitions:
+  Oauth2:
+    type: oauth2
+    flow: application
+    x-ibm-oauth-provider: authentication
+    tokenUrl: 'https://$(catalog.url)/v1/Authentication/oauth2/token'
+    scopes:
+      scope1: Sample scope
+  clientIdHeader:
+    type: apiKey
+    in: header
+    name: X-IBM-Client-Id
+tags:
+  - name: Products
+    description: Api que permite la consulta y saldos de lo productos de clientes de los bancos del grupo aval
+definitions:
+  CustId:
+    properties:
+      SPName:
+        type: string
+        maxLength: 50
+        minLength: 0
+        description: Identificador global único del proveedor del servicio
+      CustPermId:
+        type: string
+        maxLength: 50
+        minLength: 0
+        description: 'Identificador permanente del cliente, puede ser usado como usuario fijo que siempre va a estar autorizado para ejecutar la transacción'
+      CustLoginId:
+        type: string
+        maxLength: 50
+        minLength: 0
+        description: Usado para identificar el usuario que hace login
+    additionalProperties: false
+  BankInfo:
+    properties:
+      BankId:
+        type: string
+        maxLength: 10
+        minLength: 0
+        description: Código que identifica al banco
+      RefInfo:
+        $ref: '#/definitions/RefInfo'
+    additionalProperties: false
+  DepAcctId:
+    properties:
+      AcctId:
+        type: string
+        maxLength: 25
+        minLength: 0
+        description: Identificador de una cuenta
+      AcctType:
+        type: string
+        description: Tipo de cuenta
+      AcctSubType:
+        type: string
+        description: 'Subtipo de cuenta, Aplica para Resumen Productos BBOG'
+      AcctCur:
+        type: string
+        maxLength: 10
+        minLength: 0
+        description: tipo de moneda que maneja la cuenta
+      BankInfo:
+        $ref: '#/definitions/BankInfo'
+      OfficeInfo:
+        $ref: '#/definitions/OfficeInfo'
+    additionalProperties: false
+  OfficeInfo:
+    properties:
+      OfficeId:
+        type: string
+        maxLength: 10
+        minLength: 0
+        description: Código que identifica a la oficina
+    additionalProperties: false
+  CurAmt:
+    properties:
+      Amt:
+        type: number
+        format: double
+        maxLength: 1000000000000000
+        minLength: 0
+        description: 'Monto, los decimales se debe trabajar con coma(,)'
+      CurCode:
+        type: string
+        maxLength: 3
+        minLength: 3
+        description: Código de moneda en estándar ISO 4217
+    additionalProperties: false
+  AcctBal:
+    type: array
+    items:
+      $ref: '#/definitions/AcctBalData'
+  AcctBalData:
+    properties:
+      BalType:
+        type: string
+        maxLength: 50
+        minLength: 0
+        description: Descripción del saldo
+      CurAmt:
+        $ref: '#/definitions/CurAmt'
+      Desc:
+        type: string
+        maxLength: 500
+        minLength: 0
+        description: Descripcion de transaccion
+      Value:
+        type: string
+        minLength: 0
+        maxLength: 100
+      LastTrnDt:
+        type: string
+        format: date-time
+        description: Ultima fecha de transaccion
+      ByDefault:
+        type: string
+        maxLength: 50
+        minLength: 0
+        description: Saldo por defecto
+    additionalProperties: false
+  MinPmtCurAmt:
+    description: Pago mínimo requerido
+    type: object
+    properties:
+      Amt:
+        description: 'Monto, los decimales se debe trabajar con coma(,)'
+        type: number
+        format: double
+        minimum: 0
+        maximum: 9999999999999
+      CurCode:
+        description: Codigo de moneda en estandar ISO 4217
+        type: string
+        minimum: 3
+        maximum: 3
+      CurRate:
+        description: Tasa de cambio de la moneda
+        type: number
+        format: double
+        minimum: 0
+        maximum: 9999
+      CurConvertRule:
+        description: Indicador de conversion de moneda
+        type: string
+        minimum: 0
+        maximum: 5
+  TINInfo:
+    properties:
+      TINType:
+        type: string
+        maxLength: 15
+        minLength: 0
+        description: Tipo de numero de identificación fiscal
+      TaxId:
+        type: string
+        maxLength: 30
+        minLength: 0
+        description: Identificador de impuesto del cliente
+      CertCode:
+        type: string
+        maxLength: 30
+        minLength: 0
+        description: Código de certificación para la identificación fiscal
+    additionalProperties: false
+  BankAcctStatus:
+    properties:
+      BankAcctStatusCode:
+        type: string
+        description: Tipo de numero de identificación fiscal. Para T1 de BBOG A-Activo. I-Inactivo
+      StatusDesc:
+        type: string
+        maxLength: 100
+        minLength: 0
+        description: Explicación asociada al statusCode
+      EffDt:
+        type: string
+        format: date-time
+        description: Fecha en que una operación se hace efectiva
+    additionalProperties: false
+  PartyAcctRel:
+    properties:
+      PartyAcctRelType:
+        type: string
+        description: Tipo de relación con una cuenta
+      PartyAcctRelDesc:
+        type: string
+        maxLength: 500
+        minLength: 0
+        description: Descripción de la relación con la cuenta
+  PartyAcctRelRec:
+    properties:
+      PartyAcctRelInfo:
+        $ref: '#/definitions/PartyAcctRelInfo'
+      PartyAcctRelId:
+        type: string
+        maxLength: 20
+        minLength: 0
+        description: Identificación de una cuenta conjunta
+      FullName:
+        type: string
+        maxLength: 200
+        minLength: 0
+        description: Nombre completo de una persona
+      TINInfo:
+        $ref: '#/definitions/TINInfo'
+      OwnerInd:
+        type: boolean
+        description: Indica si la relación es del tipo propietario o no propietario
+      BankAcctStatus:
+        $ref: '#/definitions/BankAcctStatus'
+      OpenDt:
+        type: string
+        description: 'Fecha de inicio del ciclo de facturación, o fecha de apertura de un producto. Formato YYYY-MM-DD'
+      ClosedDt:
+        type: string
+        format: data-time
+        description: Indica la fecha en que se cerró la cuenta
+      PrimaryAcct:
+        type: boolean
+        description: 'Se usa como cuenta predeterminada para una clase de cuentas (es decir, comprobación). Típicamente utilizado en redes de ATM. Las implicaciones de que una cuenta se marque como primaria son específicas de una institución financiera'
+      Nickname:
+        type: string
+        maxLength: 100
+        minLength: 0
+        description: Usado para asignar un nickname a un objeto
+      AcctBal:
+        $ref: '#/definitions/AcctBal'
+      MinPmtCurAmt:
+        $ref: '#/definitions/MinPmtCurAmt'
+      DueDt:
+        type: string
+        format: data-time
+        description: Indica la fecha limite de pago
+      LastTrnDt:
+        type: string
+        format: data-time
+        description: Indica la fecha de la última transacción.
+    additionalProperties: false
+  AdditionalStatus:
+    properties:
+      StatusCode:
+        type: string
+        minLength: 0
+        maxLength: 100
+        description: Codigo de respuesta del backend
+        example: '300'
+      ServerStatusCode:
+        type: string
+        maxLength: 10
+        minLength: 0
+        description: Codigo status servidor
+      Severity:
+        type: string
+        enum:
+          - info
+          - Warning
+          - Warn
+          - Error
+        description: codigo de severidad de la respuesta
+      StatusDesc:
+        type: string
+        maxLength: 100
+        minLength: 0
+        description: Explicacion asociada al statusCode
+    additionalProperties: false
+  Status:
+    properties:
+      StatusCode:
+        type: string
+        minLength: 0
+        maxLength: 100
+        description: Codigo de respuesta del backend
+        example: '300'
+      ServerStatusCode:
+        type: string
+        minLength: 0
+        maxLength: 100
+        description: Código de respuesta del servidor
+      Severity:
+        type: string
+        enum:
+          - info
+          - Warning
+          - Warn
+          - Error
+        description: codigo de severidad de la respuesta
+      StatusDesc:
+        type: string
+        maxLength: 100
+        minLength: 0
+        description: Explicacion asociada al statusCode
+      AdditionalStatus:
+        $ref: '#/definitions/AdditionalStatus'
+      EndDt:
+        type: string
+        format: date-time
+        description: Fecha Finalizacion
+    additionalProperties: false
+  MsgRsHdr:
+    properties:
+      Status:
+        $ref: '#/definitions/Status'
+      EndDt:
+        type: string
+        format: date-time
+        description: Fecha Finalizacion
+    additionalProperties: false
+  ResBGetProductsCustomerError:
+    properties:
+      MsgRsHdr:
+        $ref: '#/definitions/MsgRsHdr'
+    additionalProperties: false
+    example:
+      MsgRsHdr:
+        Status:
+          StatusCode: '4512'
+          Severity: Error
+          StatusDesc: 'NO HAY PRODUCTOS PARA ESE CLIENTE                 '
+  ResBGetProductsCustomer:
+    properties:
+      PartyAcctRelRec:
+        type: array
+        items:
+          $ref: '#/definitions/PartyAcctRelRec'
+    additionalProperties: false
+    example:
+      PartyAcctRelRec:
+        - PartyAcctRelInfo:
+            DepAcctId:
+              AcctId: '8819182'
+              AcctType: SDA
+          AcctBal:
+            - CurAmt:
+                Amt: 6585387.47
+                CurCode: COP
+              Desc: Saldo_disponible
+              LastTrnDt: '2019-03-22T13:12:26.000Z'
+        - PartyAcctRelInfo:
+            DepAcctId:
+              AcctId: '8923687'
+              AcctType: SDA
+          AcctBal:
+            - CurAmt:
+                Amt: 0
+                CurCode: COP
+              Desc: Saldo_disponible
+              LastTrnDt: '2019-03-22T13:12:26.000Z'
+        - PartyAcctRelInfo:
+            DepAcctId:
+              AcctId: '8923745'
+              AcctType: SDA
+          AcctBal:
+            - CurAmt:
+                Amt: 0
+                CurCode: COP
+              Desc: Saldo_disponible
+              LastTrnDt: '2019-03-22T13:12:26.000Z'
+        - PartyAcctRelInfo:
+            DepAcctId:
+              AcctId: '420712007'
+              AcctType: SDA
+          AcctBal:
+            - CurAmt:
+                Amt: 0
+                CurCode: COP
+              Desc: Saldo_disponible
+              LastTrnDt: '2019-03-22T13:12:26.000Z'
+  ReqBPostProductsBalance:
+    type: object
+    required:
+      - DepAcctId
+    properties:
+      DepAcctId:
+        $ref: '#/definitions/DepAcctId'
+    example:
+      DepAcctId:
+        AcctId: '456789098765'
+        AcctType: SDA
+  ResBPostProductsBalanceError:
+    properties:
+      MsgRsHdr:
+        $ref: '#/definitions/MsgRsHdr'
+    additionalProperties: false
+    example:
+      MsgRsHdr:
+        Status:
+          StatusCode: '100'
+          Severity: Warn
+          StatusDesc: 'TITULAR NO CORRESPONDE                            '
+          AdditionalStatus:
+            StatusCode: '105'
+            StatusDesc: 'TITULAR NO CORRESPONDE                            '
+          EndDt: '2019-03-22 11:34:12.502445'
+        EndDt: '2019-03-22 11:34:12.502445'
+  ResBPostProductsBalance:
+    properties:
+      PartyAcctRelRec:
+        type: array
+        items:
+          $ref: '#/definitions/PartyAcctRelRec'
+    additionalProperties: false
+    example:
+      PartyAcctRelRec:
+        - PartyAcctRelInfo:
+            DepAcctId:
+              AcctId: '4960802741824592'
+              AcctType: CCA
+          AcctBal:
+            - CurAmt:
+                Amt: 1292446
+              Desc: Pago_total_pesos
+            - CurAmt:
+                Amt: 54282
+              Desc: Saldo_mora_pesos
+            - CurAmt:
+                Amt: 1553034
+              Desc: Cupo_disponible_avances_pesos
+            - CurAmt:
+                Amt: 2707554
+              Desc: Cupo_disponible_compras_pesos
+            - CurAmt:
+                Amt: 4000000
+              Desc: Cupo_total
+          MinPmtCurAmt:
+            Amt: 43936
+          DueDt: '2019-03-19T00:00:00.000Z'
+          LastTrnDt: '2019-03-17T00:00:00.000Z'
+  ErrorCode:
+    properties:
+      httpCode:
+        type: string
+        maxLength: 100
+        minLength: 0
+      httpMessage:
+        type: string
+        description: Mensaje asociado a HttpCode
+        maxLength: 100
+        minLength: 0
+      moreInformation:
+        type: string
+        description: Mas informacion
+        maxLength: 100
+        minLength: 0
+    additionalProperties: false
+  PartyAcctRelInfo:
+    properties:
+      CustId:
+        $ref: '#/definitions/CustId'
+      DepAcctId:
+        $ref: '#/definitions/DepAcctId'
+      PartyAcctRel:
+        $ref: '#/definitions/PartyAcctRel'
+      CardAcctId:
+        $ref: '#/definitions/CardAcctId'
+    additionalProperties: false
+  CardAcctId:
+    type: object
+    properties:
+      AcctId:
+        description: Identificador de una cuenta
+        type: string
+        maxLength: 25
+        minLength: 1
+        example: '123456'
+      AcctType:
+        description: Tipo de cuenta
+        type: string
+        example: CCA
+      BankInfo:
+        $ref: '#/definitions/BankInfo'
+    required:
+      - AcctId
+  RefInfo:
+    type: object
+    properties:
+      RefType:
+        description: Descripción del tipo de referencia
+        type: string
+        maxLength: 100
+        minLength: 0
+        example: REF1
+      RefId:
+        description: Identificador de la referencia
+        type: string
+        maxLength: 100
+        minLength: 0
+        example: R12SD32
+    required:
+      - RefType
+  ReqBPostProductsCustomerCreditCard:
+    type: object
+    additionalProperties: false
+    properties:
+      CardAcctId:
+        $ref: '#/definitions/CardAcctId'
+    example:
+      CardAcctId:
+        AcctId: '8473625142567398'
+        AcctType: CCA
+        BankInfo:
+          BankId: '00010236'
+  ResBPostProductsCustomerCreditCardError:
+    type: object
+    properties:
+      MsgRsHdr:
+        $ref: '#/definitions/MsgRsHdr'
+    example:
+      MsgRsHdr:
+        Status:
+          StatusCode: '100'
+          ServerStatusCode: '10011'
+          Severity: Error
+          StatusDesc: No existe información para los criterios seleccionados.
+          AdditionalStatus:
+            StatusCode: '105'
+            StatusDesc: NO SE ENCONTRARON DATOS ASOCIADOS A LA CONSULTA
+          EndDt: '2019-03-22 11:34:12.502445'
+        EndDt: '2019-03-22 11:34:12.502445'
+  ResBPostProductsCustomerCreditCard:
+    type: object
+    properties:
+      PartyAcctRelRec:
+        type: array
+        items:
+          $ref: '#/definitions/PartyAcctRelRec'
+    additionalProperties: false
+    example:
+      PartyAcctRelRec:
+        - PartyAcctRelInfo:
+            CardAcctId:
+              AcctId: '8819182937223132'
+              AcctType: CCA
+          AcctBal:
+            - CurAmt:
+                Amt: 6585387.47
+                CurCode: COP
+        - PartyAcctRelInfo:
+            DepAcctId:
+              AcctId: '8923687265367233'
+              AcctType: CCA
+          AcctBal:
+            - CurAmt:
+                Amt: 0
+                CurCode: COP
+        - PartyAcctRelInfo:
+            DepAcctId:
+              AcctId: '8923745512451788'
+              AcctType: SDA
+          AcctBal:
+            - CurAmt:
+                Amt: 0
+                CurCode: COP
+paths:
+  /Products/Balance:
+    post:
+      responses:
+        '201':
+          description: Transaction Success
+          schema:
+            $ref: '#/definitions/ResBPostProductsBalance'
+          headers:
+            X-RqUID:
+              type: string
+              description: Identificador único de la invocación.
+            X-ApprovalId:
+              type: string
+              description: Número de autorización de la transacción.
+        '206':
+          description: Transaction Failed
+          schema:
+            $ref: '#/definitions/ResBPostProductsBalanceError'
+          headers:
+            X-RqUID:
+              type: string
+              description: Identificador único de la invocación.
+            X-ApprovalId:
+              type: string
+              description: Número de autorización de la transacción.
+        '400':
+          description: Ha ocurrido un error en la invocación
+          schema:
+            $ref: '#/definitions/ErrorCode'
+        '401':
+          description: no autorizado
+          schema:
+            $ref: '#/definitions/ErrorCode'
+        '405':
+          description: método no permitido
+          schema:
+            $ref: '#/definitions/ErrorCode'
+        '422':
+          description: método no permitido
+          schema:
+            $ref: '#/definitions/ErrorCode'
+        '500':
+          description: error en servidor
+          schema:
+            $ref: '#/definitions/ResBPostProductsBalanceError'
+          headers:
+            X-RqUID:
+              type: string
+              description: Identificador único de la invocación.
+            X-ApprovalId:
+              type: string
+              description: Número de autorización de la transacción.
+      tags:
+        - Products
+      operationId: postProductBalanceCustomer
+      description: Con esta API se permite la consulta de saldos de productos de un cliente
+      parameters:
+        - name: X-RqUID
+          in: header
+          required: true
+          description: Identificador único
+          maxLength: 36
+          minLength: 1
+          type: string
+          x-example: '1001019911231'
+        - name: X-Channel
+          in: header
+          required: true
+          description: Canal origen
+          maxLength: 20
+          minLength: 0
+          type: string
+          x-example: MB
+        - name: X-CompanyId
+          in: header
+          required: true
+          description: Empresa origen de la invocación
+          maxLength: 10
+          minLength: 0
+          type: string
+          x-example: '0052'
+        - name: X-GovIssueIdentType
+          in: header
+          required: true
+          description: Tipo de documento origen
+          type: string
+          enum:
+            - CC
+            - CE
+            - LC
+            - NI
+            - NE
+            - NJ
+            - OT
+            - PA
+            - RC
+            - TI
+          x-example: CC
+        - name: X-IdentSerialNum
+          in: header
+          required: true
+          description: Número de identificación origen
+          type: string
+          maxLength: 20
+          minLength: 0
+          x-example: '80026399'
+        - name: X-IPAddr
+          in: header
+          required: true
+          description: IP origen
+          type: string
+          format: ipv4
+          maxLength: 15
+          minLength: 0
+          x-example: 192.168.206.28
+        - name: X-NextDt
+          in: header
+          required: true
+          description: Fecha de compensación
+          type: string
+          format: date-time
+          x-example: '2015-05-13T00:00:00'
+        - name: X-SessKey
+          in: header
+          required: true
+          description: Sesión
+          type: string
+          maxLength: 1000
+          minLength: 0
+          x-example: Mwc2Zngc1fXkdMqnJ5z1LRwBktXz0kFRsm6v028RRPp9tVRhrtG5!-1597859265!1500405852732
+        - name: X-Language
+          in: header
+          required: true
+          description: 'especifica lenguaje usado, sigue el estándar ISO 639 mas un guion mas el código de país según la norma ISO 3166'
+          type: string
+          maxLength: 5
+          minLength: 5
+          x-example: es_CO
+        - name: X-Version
+          in: header
+          required: false
+          description: Versión de la aplicación
+          type: string
+          maxLength: 20
+          minLength: 0
+          x-example: 8.54.1
+        - name: X-FirstName
+          in: header
+          required: false
+          description: Nombre de usuario en sesion
+          type: string
+          maxLength: 100
+          minLength: 0
+          x-example: Jeisson
+        - name: X-LastName
+          in: header
+          required: false
+          description: Apellido de usuario de sesión
+          type: string
+          maxLength: 100
+          minLength: 0
+          x-example: Cordoba
+        - name: X-KeyAcctId
+          in: header
+          required: false
+          description: Llave de identificación de cuenta
+          type: string
+          maxLength: 15
+          minLength: 0
+          x-example: '888888888'
+        - name: X-CustLoginId
+          in: header
+          required: false
+          description: Usuario en sesión
+          type: string
+          maxLength: 50
+          minLength: 0
+          x-example: ADMJAFERNANDOA
+        - name: X-CustIdentType
+          in: header
+          required: false
+          description: Numero de identificación de una compañía
+          type: string
+          maxLength: 3
+          minLength: 0
+          x-example: CC
+        - name: X-CustIdentNum
+          in: header
+          required: false
+          description: Numero de identificación de una compañía
+          type: string
+          maxLength: 25
+          minLength: 0
+          x-example: '80367499'
+        - name: X-LegalName
+          in: header
+          required: false
+          description: Nombre de la empresa
+          type: string
+          maxLength: 100
+          minLength: 0
+          x-example: Cordoba
+        - name: X-Name
+          in: header
+          required: false
+          type: string
+          maxLength: 50
+          minLength: 0
+          description: Nombre de la aplicacion que consume la API
+          x-example: ICBS
+        - name: ReqBPostProductsBalance
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ReqBPostProductsBalance'
+      consumes: []
+      produces: []
+  /Products:
+    get:
+      responses:
+        '200':
+          description: Transaction Success
+          schema:
+            $ref: '#/definitions/ResBGetProductsCustomer'
+          headers:
+            X-RqUID:
+              type: string
+              description: Identificador único de la invocación.
+            X-ApprovalId:
+              type: string
+              description: Número de autorización de la transacción.
+        '206':
+          description: Transaction Failed
+          schema:
+            $ref: '#/definitions/ResBGetProductsCustomerError'
+          headers:
+            X-RqUID:
+              type: string
+              description: Identificador único de la invocación.
+            X-ApprovalId:
+              type: string
+              description: Número de autorización de la transacción.
+        '400':
+          description: Ha ocurrido un error en la invocación
+          schema:
+            $ref: '#/definitions/ErrorCode'
+        '401':
+          description: no autorizado
+          schema:
+            $ref: '#/definitions/ErrorCode'
+        '405':
+          description: método no permitido
+          schema:
+            $ref: '#/definitions/ErrorCode'
+        '422':
+          description: método no permitido
+          schema:
+            $ref: '#/definitions/ErrorCode'
+        '500':
+          description: error en servidor
+          schema:
+            $ref: '#/definitions/ErrorCode'
+          headers:
+            X-RqUID:
+              type: string
+              description: Identificador único de la invocación.
+            X-ApprovalId:
+              type: string
+              description: Número de autorización de la transacción.
+      tags:
+        - Products
+      operationId: getProductsCustomer
+      description: Con esta API se permite la consulta de productos de un cliente
+      parameters:
+        - name: X-RqUID
+          in: header
+          required: true
+          description: Identificador único
+          maxLength: 36
+          minLength: 1
+          type: string
+          x-example: '9920190122101299'
+        - name: X-Channel
+          in: header
+          required: true
+          description: Canal origen
+          maxLength: 20
+          minLength: 0
+          type: string
+          x-example: MB
+        - name: X-CompanyId
+          in: header
+          required: true
+          description: Empresa origen de la invocación
+          maxLength: 10
+          minLength: 0
+          type: string
+          x-example: '0023'
+        - name: X-GovIssueIdentType
+          in: header
+          required: true
+          description: 'Tipo de documento origen. CC-Cedula de ciudadania. CE-Cedula extrangeria. LC-Licencia de conduccion. NI-Nit persona Natural. NJ-Nit Juridica. NE-Nit Extranjeria. OT-Otro. PA:Pasaporte. RC-Registro civil. TI-Tarjeta de identidad'
+          type: string
+          enum:
+            - CC
+            - CE
+            - LC
+            - NI
+            - NJ
+            - NE
+            - OT
+            - PA
+            - RC
+            - TI
+          x-example: CC
+        - name: X-IdentSerialNum
+          in: header
+          required: true
+          description: Número de identificación origen
+          type: string
+          maxLength: 20
+          minLength: 0
+          x-example: '80367413'
+        - name: X-IPAddr
+          in: header
+          required: false
+          description: IP origen
+          type: string
+          format: ipv4
+          maxLength: 15
+          minLength: 0
+          x-example: 192.168.1.105
+        - name: X-NextDt
+          in: header
+          required: false
+          description: Fecha de compensación
+          type: string
+          format: date-time
+          x-example: '2015-05-13T00:00:00'
+        - name: X-SessKey
+          in: header
+          required: false
+          description: Sesión
+          type: string
+          maxLength: 1000
+          minLength: 0
+          x-example: Mwc2Zngc1fXkdMqnJ5z1LRwBktXz0kFRsm6v028RRPp9tVRhrtG5!-1597859265!1500405852732
+        - name: X-Language
+          in: header
+          required: false
+          description: 'especifica lenguaje usado, sigue el estándar ISO 639 mas un guion mas el código de país según la norma ISO 3166'
+          type: string
+          maxLength: 5
+          minLength: 5
+          x-example: es_CO
+        - name: X-Version
+          in: header
+          required: false
+          description: Versión de la aplicación
+          type: string
+          maxLength: 20
+          minLength: 0
+          x-example: 8.54.1
+        - name: X-Name
+          in: header
+          required: false
+          type: string
+          maxLength: 50
+          minLength: 0
+          description: Nombre de la aplicacion que consume la API
+          x-example: ICBS
+        - name: X-FirstName
+          in: header
+          required: false
+          description: Nombre de usuario en sesion
+          type: string
+          maxLength: 100
+          minLength: 0
+          x-example: Jeisson
+        - name: X-LastName
+          in: header
+          required: false
+          description: Apellido de usuario de sesión
+          type: string
+          maxLength: 100
+          minLength: 0
+          x-example: Cordoba
+        - name: X-KeyAcctId
+          in: header
+          required: false
+          description: Llave de identificación de cuenta
+          type: string
+          maxLength: 15
+          minLength: 0
+          x-example: '888888888'
+        - name: X-CustLoginId
+          in: header
+          required: false
+          description: Usuario en sesión
+          type: string
+          maxLength: 50
+          minLength: 0
+          x-example: ADMJAFERNANDOA
+        - name: X-CustIdentType
+          in: header
+          required: false
+          description: Numero de identificación de una compañía
+          type: string
+          maxLength: 3
+          minLength: 0
+          x-example: CC
+        - name: X-CustIdentNum
+          in: header
+          required: false
+          description: Numero de identificación de una compañía
+          type: string
+          maxLength: 25
+          minLength: 0
+          x-example: '80367413'
+        - name: X-LegalName
+          in: header
+          required: false
+          description: Nombre de la empresa
+          type: string
+          maxLength: 100
+          minLength: 0
+          x-example: Cordoba
+        - name: BankId
+          in: query
+          required: false
+          description: 'Banco destino de consulta, usar para consultar AVAL'
+          type: string
+          maxLength: 10
+          minLength: 0
+          x-example: '0023'
+        - name: AcctType
+          in: query
+          required: false
+          description: Tipos de producto que se desea obtener
+          type: string
+          enum:
+            - CCA
+            - CDA
+            - CLA
+            - DDA
+            - EQU
+            - ILA
+            - LOC
+            - LOP
+            - SDA
+          x-example: SDA
+        - name: Fields
+          in: query
+          required: false
+          description: 'Se pueden incluir los campos del agregado de respuesta que se desean obtener separados por coma(,)'
+          type: string
+          maxLength: 25
+          minLength: 0
+      consumes: []
+      produces: []
+  /Products/CreditCard:
+    post:
+      responses:
+        '201':
+          description: Transaction Success
+          schema:
+            $ref: '#/definitions/ResBPostProductsCustomerCreditCard'
+          headers:
+            X-RqUID:
+              type: string
+              description: Identificador único de la invocación.
+            X-ApprovalId:
+              type: string
+              description: Número de autorización de la transacción.
+          examples: {}
+        '206':
+          description: Transaction Failed
+          schema:
+            $ref: '#/definitions/ResBPostProductsCustomerCreditCardError'
+          headers:
+            X-RqUID:
+              type: string
+              description: Identificador único de la invocación.
+            X-ApprovalId:
+              type: string
+              description: Número de autorización de la transacción.
+        '400':
+          description: Ha ocurrido un error en la invocación
+          schema:
+            $ref: '#/definitions/ErrorCode'
+        '401':
+          description: no autorizado
+          schema:
+            $ref: '#/definitions/ErrorCode'
+        '405':
+          description: método no permitido
+          schema:
+            $ref: '#/definitions/ErrorCode'
+        '500':
+          description: error en servidor
+          schema:
+            $ref: '#/definitions/MsgRsHdr'
+          headers:
+            X-RqUID:
+              type: string
+              description: Identificador único de la invocación.
+            X-ApprovalId:
+              type: string
+              description: Número de autorización de la transacción.
+      tags:
+        - Products
+      operationId: getProtectedCards
+      description: Realizar la consulta de tarjetas de crédito amparadas
+      parameters:
+        - name: X-RqUID
+          in: header
+          required: true
+          description: Identificador único
+          maxLength: 36
+          minLength: 1
+          type: string
+          x-example: '9920190122101299'
+        - name: X-Channel
+          in: header
+          required: true
+          description: Canal origen
+          maxLength: 20
+          minLength: 0
+          type: string
+          x-example: MB
+        - name: X-CompanyId
+          in: header
+          required: true
+          description: Empresa origen de la invocación
+          maxLength: 10
+          minLength: 0
+          type: string
+          x-example: '0023'
+        - name: X-GovIssueIdentType
+          in: header
+          required: true
+          description: Tipo de documento origen
+          type: string
+          enum:
+            - CC
+            - CE
+            - LC
+            - NI
+            - NE
+            - NJ
+            - OT
+            - PA
+            - RC
+            - TI
+          x-example: CC
+        - name: X-IdentSerialNum
+          in: header
+          required: true
+          description: Número de identificación origen
+          type: string
+          maxLength: 20
+          minLength: 0
+          x-example: '80367413'
+        - name: X-IPAddr
+          in: header
+          required: true
+          description: IP origen
+          type: string
+          format: ipv4
+          maxLength: 15
+          minLength: 0
+          x-example: 192.168.1.105
+        - name: X-NextDt
+          in: header
+          required: true
+          description: Fecha de compensación
+          type: string
+          format: date-time
+          x-example: '2015-05-13T00:00:00'
+        - name: ReqBPostProductsCustomerCreditCard
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ReqBPostProductsCustomerCreditCard'
+          x-examples: {}
